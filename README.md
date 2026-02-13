@@ -28,7 +28,7 @@ curl --user myusername --data-binary '{"jsonrpc": "1.0", "id": "curltest", "meth
 Run LocalPool, connecting it to the bitcoin node. Example:
 
 ```
-localpool 8432 "http://bitcoin.local:8332/"
+localpool 8432 "http://bitcoin.local:8332/" 30
 ```
 
 Test it:
@@ -36,6 +36,8 @@ Test it:
 ```
 curl --user myusername --data-binary '{"jsonrpc": "1.0", "id": "curltest", "method": "sendrawtransaction", "params": ["SIGNEDHEXTX"]}' -H 'content-type: text/plain;' http://localhost:8432/
 ```
+
+This will send a transaction to localpool, localpool will store it, and it will forward it after 30 seconds.
 
 
 ## Misc

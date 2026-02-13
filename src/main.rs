@@ -1,4 +1,4 @@
-use localpool::rpc_proxy::RpcProxy;
+use localpool::rpc_proxy::{ProxyConfig, RpcProxy};
 
 use std::env;
 use std::io::{self, BufRead};
@@ -8,8 +8,13 @@ async fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 3 {
-        eprintln!("Usage: {} <port> <upstream_url>", args[0]);
+        eprintln!("Usage: {} <port> <upstream_url> <delay_secs>", args[0]);
         eprintln!("Example: {} 8432 http://127.0.0.1:8332", args[0]);
+        eprintln!("  <port>          Port to listen on");
+        eprintln!("  <upstream_url>  RPC address of the bitcoin node");
+        eprintln!(
+            "  <delay_secs>    The delay setting in seconds, in transparent mode. 0 for no delay"
+        );
         std::process::exit(1);
     }
 
@@ -20,14 +25,24 @@ async fn main() {
 
     let upstream_url = args[2].clone();
 
+    let delay_secs = if args.len() >= 4 {
+        args[3].parse().unwrap_or_else(|_| {
+            eprintln!("Error: Invalid delay number '{}'", args[3]);
+            std::process::exit(1);
+        })
+    } else {
+        0
+    };
+
     println!(
-        "LocalPool say hello!  port: {}  upstream: {}",
-        port, upstream_url
+        "LocalPool  port: {}  upstream: {}  delay: {}",
+        port, upstream_url, delay_secs
     );
     println!("  Upstream bitcoin node URL:   {}", upstream_url);
     println!("  Local port:                  {}", port);
 
-    let mut proxy = RpcProxy::new(port, &upstream_url).await;
+    let mut proxy =
+        RpcProxy::new_with_config(ProxyConfig::new(port, &upstream_url, delay_secs)).await;
     println!("Listening started ...");
 
     println!("Press Enter to stop the server...");

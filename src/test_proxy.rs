@@ -12,7 +12,7 @@ fn create_and_start_stub(stub_port: u16) -> (String, RpcStub) {
 
 async fn create_and_start_stub_and_proxy(stub_port: u16, proxy_port: u16) -> (RpcStub, RpcProxy) {
     let (stub_url, stub) = create_and_start_stub(stub_port);
-    let proxy_config = ProxyConfig::new(proxy_port, &stub_url);
+    let proxy_config = ProxyConfig::new(proxy_port, &stub_url, 0);
     let proxy = RpcProxy::new_with_config(proxy_config).await;
     (stub, proxy)
 }
@@ -143,9 +143,7 @@ async fn test_proxy_multiple_commands() {
 
 #[tokio::test]
 async fn test_proxy_sendrawtransaction_delayed() {
-    let mut config = ProxyConfig::new(1, "1");
-    config.delayed_broadcast = true;
-    config.delayed_broadcast_delay_secs = 3600;
+    let config = ProxyConfig::new(1, "dummy", 3600);
     let (mut stub, mut proxy) =
         create_and_start_stub_and_proxy_with_config(8345, 18345, config).await;
 
