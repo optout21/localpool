@@ -1,5 +1,5 @@
 use crate::rpc_command::RpcCommand;
-use crate::rpc_stub::command_store::CommandStore;
+use crate::test_stub::command_store::CommandStore;
 
 use bytes::Bytes;
 use serde_json::Value;
