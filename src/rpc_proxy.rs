@@ -21,12 +21,12 @@ pub struct ProxyConfig {
 }
 
 impl ProxyConfig {
-    pub fn new(local_port: u16, upstream_url: &str) -> Self {
+    pub fn new(local_port: u16, upstream_url: &str, delay_secs: u32) -> Self {
         Self {
             upstream_url: upstream_url.into(),
             port: local_port,
-            delayed_broadcast: false,
-            delayed_broadcast_delay_secs: 0,
+            delayed_broadcast: (delay_secs > 0),
+            delayed_broadcast_delay_secs: delay_secs,
         }
     }
 }
@@ -116,8 +116,8 @@ impl RpcProxy {
     }
 
     /// Creates a new RpcProxy with logging enabled by default and starts HTTP server
-    pub async fn new(local_port: u16, upstream_url: &str) -> Self {
-        let config = ProxyConfig::new(local_port, upstream_url);
+    pub async fn new(local_port: u16, upstream_url: &str, delay_secs: u32) -> Self {
+        let config = ProxyConfig::new(local_port, upstream_url, delay_secs);
         Self::new_with_config(config).await
     }
 
