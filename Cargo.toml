@@ -14,11 +14,11 @@ warp = "0.3"
 [dev-dependencies]
 
 [features]
-default = ["test-bin"]
-test-bin = []
+default = ["test-stub"]
+test-stub = []
 
 [[bin]]
-name = "rpc_stub"
-path = "src/bin/rpc_stub_main.rs"
-required-features = ["test-bin"]
+name = "test_stub"
+path = "src/bin/test_stub_main.rs"
+required-features = ["test-stub"]
 

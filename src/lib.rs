@@ -2,8 +2,8 @@ mod local_tx;
 mod local_txs;
 mod rpc_command;
 pub mod rpc_proxy;
-#[cfg(any(feature = "test-bin", test))]
-pub mod rpc_stub;
+#[cfg(any(feature = "test-stub", test))]
+pub mod test_stub;
 
 #[cfg(test)]
 mod test;

@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::rpc_proxy::{ProxyConfig, RpcProxy};
-use crate::rpc_stub::RpcStub;
+use crate::test_stub::RpcStub;
 use serde_json::json;
 
 fn create_and_start_stub(stub_port: u16) -> (String, RpcStub) {

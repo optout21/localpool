@@ -1,4 +1,4 @@
-use localpool::rpc_stub::RpcStub;
+use localpool::test_stub::RpcStub;
 
 use std::env;
 use std::sync::Arc;
