@@ -247,14 +247,14 @@ impl RpcProxy {
         std::thread::spawn(move || {
             let rt = tokio::runtime::Runtime::new().unwrap();
             rt.block_on(async move {
-                let (_, server) = warp::serve(rpc_route).bind_with_graceful_shutdown(
-                    ([127, 0, 0, 1], port),
-                    async {
+                warp::serve(rpc_route)
+                    .bind(([127, 0, 0, 1], port))
+                    .await
+                    .graceful(async {
                         rx.await.ok();
-                    },
-                );
-
-                server.await;
+                    })
+                    .run()
+                    .await;
             });
         });
 
