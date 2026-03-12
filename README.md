@@ -1,6 +1,6 @@
 # Local Pool
 
-A Bitcoin node add-one for delayed transaction broadcast.
+A Bitcoin node add-on (RPC proxy) for __delayed transaction broadcast__.
 
 ## Modes
 
@@ -13,7 +13,7 @@ Delay in the proxy works transparently. The user of the node sees like the regul
 
 TODO
 New RPC parameter.
-The user of the node has to set it.
+The user / client software has to set it.
 
 ## Usage
 
