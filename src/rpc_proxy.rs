@@ -31,7 +31,7 @@ impl ProxyConfig {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct ProxyState {
     pub in_cmd_cnt: u32,
     pub local_txs: LocalTxs,
@@ -51,10 +51,9 @@ impl ProxyState {
     }
 
     pub fn get_earliest_tx(&self) -> Option<(u32, LocalTx)> {
-        match self.local_txs.get_earliest() {
-            None => None,
-            Some(tx) => Some((tx.target_time(), tx)),
-        }
+        self.local_txs
+            .get_earliest()
+            .map(|tx| (tx.target_time(), tx))
     }
 
     fn now(&self) -> u32 {
@@ -319,7 +318,7 @@ impl RpcProxy {
                                 rt.block_on(async {
                                     let command = tx.get_command();
                                     let _response =
-                                        Self::forward_to_upstream(&config, &command).await;
+                                        Self::forward_to_upstream(&config, command).await;
                                     // TODO: Handle response, log errors, etc.
                                     println!(
                                         "Broadcasted transaction at target_time: {}",
@@ -422,14 +421,13 @@ impl RpcProxy {
             })
         } else {
             // TODO handle error
-            let result = response.json::<serde_json::Value>().await.unwrap();
-            result
+            response.json::<serde_json::Value>().await.unwrap()
         }
     }
 
     fn get_signed_hex_from_params(command: &RpcCommand) -> Result<String, String> {
         if let serde_json::Value::Array(arr) = &command.params {
-            if arr.len() >= 1 {
+            if !arr.is_empty() {
                 if let serde_json::Value::String(s) = &arr[0] {
                     Ok(s.clone())
                 } else {

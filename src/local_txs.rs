@@ -1,9 +1,7 @@
-use std::u32;
-
 use crate::local_tx::LocalTx;
 use crate::rpc_command::RpcCommand;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct LocalTxs {
     txs: Vec<LocalTx>,
 }
