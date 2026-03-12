@@ -241,7 +241,9 @@ impl RpcProxy {
                         Ok::<_, warp::Rejection>(warp::reply::json(&response))
                     }
                 },
-            );
+            )
+            // .map(|reply| warp::reply::with_header(reply, "Proxy", "localpool"))
+            ;
 
         // Spawn the server in a background thread with its own runtime
         std::thread::spawn(move || {

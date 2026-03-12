@@ -90,8 +90,11 @@ async fn test_proxy_response_headers() {
     assert!(headers.contains_key("Content-Type"));
     assert_eq!(headers.get("Content-Type").unwrap(), "application/json");
     assert!(headers.contains_key("Content-Length"));
+    // assert_eq!(headers.get("Proxy").unwrap(), "localpool");
+
     // Case-invariant check for Content-Length; electrs had problems with this
     let header_keys_nocase = headers.keys().map(|h| h.to_string()).collect::<Vec<_>>();
+    // assert!(header_keys_nocase.contains(&"proxy".to_string()));
     assert!(header_keys_nocase.contains(&"content-type".to_string()));
     assert!(header_keys_nocase.contains(&"content-length".to_string()));
 
