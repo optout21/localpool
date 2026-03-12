@@ -448,7 +448,7 @@ impl RpcProxy {
         broadcast_shutdown: &Arc<(Mutex<bool>, Condvar)>,
     ) -> Value {
         state.write().unwrap().in_cmd_cnt += 1;
-        let res = match command.method.as_str() {
+        match command.method.as_str() {
             "sendrawtransaction" => {
                 let txhex = match Self::get_signed_hex_from_params(command) {
                     Err(_e) => return Self::forward_to_upstream(config, command).await,
@@ -477,7 +477,6 @@ impl RpcProxy {
                 }
             }
             _ => Self::forward_to_upstream(config, command).await,
-        };
-        res
+        }
     }
 }
