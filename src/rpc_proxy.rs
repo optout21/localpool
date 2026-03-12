@@ -241,7 +241,9 @@ impl RpcProxy {
                         Ok::<_, warp::Rejection>(warp::reply::json(&response))
                     }
                 },
-            );
+            )
+            // .map(|reply| warp::reply::with_header(reply, "Proxy", "localpool"))
+            ;
 
         // Spawn the server in a background thread with its own runtime
         std::thread::spawn(move || {
@@ -399,11 +401,12 @@ impl RpcProxy {
             "id": json!(command.id),
         }));
 
-        // Copy headers from the incoming request
+        // Copy headers from the incoming request, except changing ones like Host
         if let Some(heads) = &command.headers {
             for (key, value) in heads {
                 let key = key.to_ascii_lowercase();
-                if key != "host" && key != "content-length" {
+                if key != "host" {
+                    // && key != "content-length" {
                     // println!("Header: {} {}", key.as_str(), value_str);
                     request = request.header(key.as_str(), value);
                 }
