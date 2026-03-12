@@ -67,6 +67,39 @@ async fn test_proxy_accepts_rpc_command() {
 
 #[tokio::test]
 #[serial]
+async fn test_proxy_response_headers() {
+    let (mut stub, mut proxy) = create_and_start_stub_and_proxy(8342, 18342).await;
+
+    // Send an HTTP POST request with JSON-RPC command
+    let client = reqwest::Client::new();
+    let response = client
+        .post(format!("http://127.0.0.1:{}", proxy.port()))
+        .json(&json!({
+            "jsonrpc": "2.0",
+            "method": "getblockcount",
+            "params": {},
+            "id": "1"
+        }))
+        .send()
+        .await
+        .unwrap();
+
+    assert!(response.status().is_success());
+
+    let headers = response.headers();
+    assert!(headers.contains_key("Content-Type"));
+    assert_eq!(headers.get("Content-Type").unwrap(), "application/json");
+    assert!(headers.contains_key("Content-Length"));
+    // Case-invariant check for Content-Length; electrs had problems with this
+    let header_keys_nocase = headers.keys().map(|h| h.to_string()).collect::<Vec<_>>();
+    assert!(header_keys_nocase.contains(&"content-type".to_string()));
+    assert!(header_keys_nocase.contains(&"content-length".to_string()));
+
+    stop_proxy_and_stub(&mut stub, &mut proxy);
+}
+
+#[tokio::test]
+#[serial]
 async fn test_proxy_as_plaintext() {
     let (mut stub, mut proxy) = create_and_start_stub_and_proxy(8342, 18342).await;
 
