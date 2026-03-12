@@ -1,8 +1,9 @@
-use std::time::Duration;
-
 use crate::rpc_proxy::{ProxyConfig, RpcProxy};
 use crate::test_stub::RpcStub;
 use serde_json::json;
+
+use serial_test::serial;
+use std::time::Duration;
 
 fn create_and_start_stub(stub_port: u16) -> (String, RpcStub) {
     let stub = RpcStub::new(false, stub_port);
@@ -35,6 +36,7 @@ fn stop_proxy_and_stub(stub: &mut RpcStub, proxy: &mut RpcProxy) {
 }
 
 #[tokio::test]
+#[serial]
 async fn test_proxy_accepts_rpc_command() {
     let (mut stub, mut proxy) = create_and_start_stub_and_proxy(8342, 18342).await;
 
@@ -64,8 +66,9 @@ async fn test_proxy_accepts_rpc_command() {
 }
 
 #[tokio::test]
+#[serial]
 async fn test_proxy_as_plaintext() {
-    let (mut stub, mut proxy) = create_and_start_stub_and_proxy(8343, 18343).await;
+    let (mut stub, mut proxy) = create_and_start_stub_and_proxy(8342, 18342).await;
 
     // Send an HTTP POST request with JSON-RPC command
     let client = reqwest::Client::new();
@@ -98,8 +101,9 @@ async fn test_proxy_as_plaintext() {
 }
 
 #[tokio::test]
+#[serial]
 async fn test_proxy_multiple_commands() {
-    let (mut stub, mut proxy) = create_and_start_stub_and_proxy(8344, 18344).await;
+    let (mut stub, mut proxy) = create_and_start_stub_and_proxy(8342, 18342).await;
 
     let client = reqwest::Client::new();
 
@@ -142,10 +146,11 @@ async fn test_proxy_multiple_commands() {
 }
 
 #[tokio::test]
+#[serial]
 async fn test_proxy_sendrawtransaction_delayed() {
     let config = ProxyConfig::new(1, "dummy", 3600);
     let (mut stub, mut proxy) =
-        create_and_start_stub_and_proxy_with_config(8345, 18345, config).await;
+        create_and_start_stub_and_proxy_with_config(8342, 18342, config).await;
 
     let client = reqwest::Client::new();
 
@@ -190,8 +195,9 @@ async fn test_proxy_sendrawtransaction_delayed() {
 }
 
 #[tokio::test]
+#[serial]
 async fn test_proxy_sendrawtransaction_nondelayed() {
-    let (mut stub, mut proxy) = create_and_start_stub_and_proxy(8346, 18346).await;
+    let (mut stub, mut proxy) = create_and_start_stub_and_proxy(8342, 18342).await;
 
     let client = reqwest::Client::new();
 
