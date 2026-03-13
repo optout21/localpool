@@ -416,18 +416,28 @@ impl RpcProxy {
 
         let response = request.send().await.unwrap();
         println!("Response status: {:?}", response.status());
-        if !response.status().is_success() {
-            serde_json::json!({
-                "result": null,
-                "error": response.status().to_string(),
-                "id": json!(command.id),
-            })
+        let result: Result<Value, String> = if !response.status().is_success() {
+            Err(response.status().to_string().into())
+        } else if let Ok(result) = response.json::<serde_json::Value>().await {
+            Ok(result["result"].clone())
         } else {
-            // TODO handle error
-            let resp = response.json::<serde_json::Value>().await.unwrap();
-            println!("Response json: {:?}", resp);
-            resp
-        }
+            Err(format!("Response parse error, no result field").into())
+        };
+        // let resp = response.json::<serde_json::Value>().await.unwrap();
+        let resp_json = match result {
+            Err(err) => serde_json::json!({
+                "result": null,
+                "error": err.to_string(),
+                "id": json!(command.id),
+            }),
+            Ok(resp) => serde_json::json!({
+                "result": resp,
+                "error": null,
+                "id": json!(command.id),
+            }),
+        };
+        println!("Response json: {:?}", resp_json);
+        resp_json
     }
 
     fn get_signed_hex_from_params(command: &RpcCommand) -> Result<String, String> {
