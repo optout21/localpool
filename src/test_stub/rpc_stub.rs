@@ -104,7 +104,6 @@ impl RpcStub {
             "getblockchaininfo" => {
                 // Return a syntactically correct response with dummy values, a canned response
                 serde_json::json!({
-                    "jsonrpc": "2.0",
                     "result": {
                         "chain": "main",
                         "blocks": 935709,
@@ -122,14 +121,15 @@ impl RpcStub {
                         "pruned": false,
                         "warnings": [],
                     },
+                    "error": null,
                     "id": id,
                 })
             }
             _ => {
                 // Return a simple JSON-RPC response
                 serde_json::json!({
-                    "jsonrpc": "2.0",
                     "result": "ok",
+                    "error": null,
                     "id": id,
                 })
             }
@@ -374,8 +374,8 @@ mod tests {
         // Verify response format
         let body: serde_json::Value = response.json::<Value>().await.unwrap();
 
-        assert_eq!(body.get("jsonrpc").unwrap(), "2.0");
         assert_eq!(body.get("result").unwrap(), "ok");
+        assert_eq!(body.get("error").unwrap(), &Value::Null);
         assert_eq!(body.get("id").unwrap(), &json!(42));
 
         stop_stub(&mut stub);
@@ -403,8 +403,8 @@ mod tests {
         // Verify the response contains blockchain info
         let body: serde_json::Value = response.json::<Value>().await.unwrap();
 
-        assert_eq!(body.get("jsonrpc").unwrap(), "2.0");
         assert_eq!(body.get("id").unwrap(), &json!(1));
+        assert_eq!(body.get("error").unwrap(), &Value::Null);
 
         // Check the result object
         let result = body.get("result").unwrap();

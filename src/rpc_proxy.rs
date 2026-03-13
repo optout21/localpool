@@ -392,6 +392,7 @@ impl RpcProxy {
     }
 
     async fn forward_to_upstream(config: &ProxyConfig, command: &RpcCommand) -> Value {
+        // println!("Forwading_to_upstream {} ...", command.method);
         // Forward to upstream with headers
         let client = reqwest::Client::new();
         let mut request = client.post(&config.upstream_url).json(&json!({
@@ -405,8 +406,7 @@ impl RpcProxy {
         if let Some(heads) = &command.headers {
             for (key, value) in heads {
                 let key = key.to_ascii_lowercase();
-                if key != "host" {
-                    // && key != "content-length" {
+                if key != "host" && key != "content-length" {
                     // println!("Header: {} {}", key.as_str(), value_str);
                     request = request.header(key.as_str(), value);
                 }
@@ -416,16 +416,28 @@ impl RpcProxy {
 
         let response = request.send().await.unwrap();
         // println!("Response status: {:?}", response.status());
-        if !response.status().is_success() {
-            serde_json::json!({
-                "jsonrpc": "2.0",
-                "result": response.status().to_string(),
-                "id": json!(command.id),
-            })
+        let result: Result<Value, String> = if !response.status().is_success() {
+            Err(response.status().to_string())
+        } else if let Ok(result) = response.json::<serde_json::Value>().await {
+            Ok(result["result"].clone())
         } else {
-            // TODO handle error
-            response.json::<serde_json::Value>().await.unwrap()
+            Err("Response parse error, no result field".to_string())
+        };
+        // let resp = response.json::<serde_json::Value>().await.unwrap();
+        match result {
+            Err(err) => serde_json::json!({
+                "result": null,
+                "error": err.to_string(),
+                "id": json!(command.id),
+            }),
+            Ok(resp) => serde_json::json!({
+                "result": resp,
+                "error": null,
+                "id": json!(command.id),
+            }),
         }
+        // println!("Response json: {:?}", resp_json);
+        // resp_json
     }
 
     fn get_signed_hex_from_params(command: &RpcCommand) -> Result<String, String> {
@@ -471,8 +483,8 @@ impl RpcProxy {
                     cvar.notify_one();
 
                     json!({
-                        "jsonrpc": "2.0",
                         "result": "Accepted, enqueued", // TODO
+                        "error": null,
                         "id": json!(command.id),
                     })
                 } else {
