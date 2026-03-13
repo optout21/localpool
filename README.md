@@ -22,7 +22,7 @@ Assume a local Bitcoin node is available, at "bitcoin.local:8334".
 Something like this should work:
 
 ```
-curl --user myusername --data-binary '{"jsonrpc": "1.0", "id": "curltest", "method": "getblockchaininfo", "params": ["SIGNEDHEXTX"]}' -H 'content-type: text/plain;' http://bitcoin.local:8332/
+curl --user myusername --data-binary '{"jsonrpc": "1.0", "id": "curltest", "method": "getblockchaininfo", "params": []}' -H 'content-type: text/plain;' http://bitcoin.local:8332/
 ```
 
 Run LocalPool, connecting it to the bitcoin node. Example:

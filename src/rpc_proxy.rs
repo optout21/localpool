@@ -418,8 +418,8 @@ impl RpcProxy {
         // println!("Response status: {:?}", response.status());
         if !response.status().is_success() {
             serde_json::json!({
-                "jsonrpc": "2.0",
                 "result": response.status().to_string(),
+                "error": null,
                 "id": json!(command.id),
             })
         } else {
@@ -471,8 +471,8 @@ impl RpcProxy {
                     cvar.notify_one();
 
                     json!({
-                        "jsonrpc": "2.0",
                         "result": "Accepted, enqueued", // TODO
+                        "error": null,
                         "id": json!(command.id),
                     })
                 } else {
