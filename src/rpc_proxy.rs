@@ -392,6 +392,7 @@ impl RpcProxy {
     }
 
     async fn forward_to_upstream(config: &ProxyConfig, command: &RpcCommand) -> Value {
+        println!("Forwading_to_upstream {} ...", command.method);
         // Forward to upstream with headers
         let client = reqwest::Client::new();
         let mut request = client.post(&config.upstream_url).json(&json!({
@@ -405,8 +406,7 @@ impl RpcProxy {
         if let Some(heads) = &command.headers {
             for (key, value) in heads {
                 let key = key.to_ascii_lowercase();
-                if key != "host" {
-                    // && key != "content-length" {
+                if key != "host" && key != "content-length" {
                     // println!("Header: {} {}", key.as_str(), value_str);
                     request = request.header(key.as_str(), value);
                 }
@@ -415,16 +415,18 @@ impl RpcProxy {
         }
 
         let response = request.send().await.unwrap();
-        // println!("Response status: {:?}", response.status());
+        println!("Response status: {:?}", response.status());
         if !response.status().is_success() {
             serde_json::json!({
-                "result": response.status().to_string(),
-                "error": null,
+                "result": null,
+                "error": response.status().to_string(),
                 "id": json!(command.id),
             })
         } else {
             // TODO handle error
-            response.json::<serde_json::Value>().await.unwrap()
+            let resp = response.json::<serde_json::Value>().await.unwrap();
+            println!("Response json: {:?}", resp);
+            resp
         }
     }
 
